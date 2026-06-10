@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Rapport d'Ouverture — OTSY</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0F1117;
+    --card: #181B24;
+    --card2: #1E2130;
+    --border: #2A2E3F;
+    --orange: #FF6B35;
+    --orange-dim: rgba(255,107,53,0.12);
+    --green: #22C55E;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #EF4444;
+    --text: #F0F1F5;
+    --muted: #7C839A;
+    --label: #A0A7BC;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* HEADER */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 34px; height: 34px;
+    background: var(--orange);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: #fff; letter-spacing: -0.5px;
+  }
+  .header-title { font-weight: 700; font-size: 15px; }
+  .header-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .clock {
+    font-size: 22px; font-weight: 800;
+    color: var(--orange);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+  }
+
+  /* SITE SELECTOR */
+  .site-selector {
+    display: flex;
+    gap: 10px;
+    padding: 14px 18px 0;
+  }
+  .site-btn {
+    flex: 1;
+    padding: 11px 0;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+  }
+  .site-btn.active {
+    background: var(--orange-dim);
+    border-color: var(--orange);
+    color: var(--orange);
+  }
+
+  /* DATE ROW */
+  .date-row {
+    padding: 12px 18px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .date-row input[type="date"] {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 14px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    color-scheme: dark;
+    min-height: 44px; /* touch target Apple HIG */
+  }
+  .date-row input[type="date"]:focus { border-color: var(--orange); }
+
+  /* SECTION CARD */
+  .section {
+    margin: 14px 18px 0;
+    background: var(--card);
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 15px;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .icon-orange { background: var(--orange-dim); }
+  .icon-green  { background: rgba(34,197,94,0.1); }
+  .icon-blue   { background: rgba(96,165,250,0.1); }
+  .icon-yellow { background: rgba(250,204,21,0.1); }
+  .icon-purple { background: rgba(167,139,250,0.1); }
+  .icon-red    { background: rgba(239,68,68,0.1); }
+  .icon-teal   { background: rgba(45,212,191,0.1); }
+
+  .section-title { font-weight: 700; font-size: 14px; }
+  .section-body { padding: 14px 15px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* FIELD */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; color: var(--label); text-transform: uppercase; letter-spacing: 0.6px; }
+
+  input[type="number"], input[type="text"], input[type="time"], textarea, select {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; /* 16px minimum pour éviter l'auto-zoom Safari iOS */
+    padding: 10px 13px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--orange); }
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+  textarea { resize: none; line-height: 1.55; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237C839A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; }
+  select option { background: #1E2130; }
+
+  /* EFFECTIF ROW */
+  .effectif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ABSENTS LIST */
+  .absent-list { display: flex; flex-direction: column; gap: 8px; }
+  .absent-item {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .absent-item input { flex: 1; }
+  .btn-remove {
+    width: 44px; height: 44px; flex-shrink: 0;
+    background: rgba(239,68,68,0.1);
+    border: none; border-radius: 8px;
+    color: var(--red); font-size: 16px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-remove:active { background: rgba(239,68,68,0.25); }
+  .btn-add {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px;
+    min-height: 44px;
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; width: 100%;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-add:active { border-color: var(--orange); color: var(--orange); }
+
+  /* DISPO ITEM */
+  .dispo-list { display: flex; flex-direction: column; gap: 10px; }
+  .dispo-item {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .dispo-row { display: flex; align-items: center; gap: 8px; }
+  .dispo-row input[type="text"] { flex: 1; }
+  .dispo-row input[type="time"] { width: 110px; flex-shrink: 0; }
+
+  /* PANNES */
+  .panne-item {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panne-item input { flex: 1; }
+
+  /* FONDS */
+  .fond-badge {
+    display: inline-flex;
+    align-items: center;
+    background: var(--green-dim);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green);
+    margin-top: 6px;
+  }
+
+  /* REMARQUES CHIPS */
+  .chip-grid {
+    display: flex; flex-wrap: wrap; gap: 7px;
+  }
+  .chip {
+    padding: 7px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--card2);
+    color: var(--label);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .chip.selected {
+    border-color: var(--orange);
+    background: var(--orange-dim);
+    color: var(--orange);
+  }
+  .remarque-textarea { margin-top: 10px; }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    padding: 14px 18px 0;
+  }
+  .progress-bar-bg {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--orange);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 5px;
+    font-weight: 600;
+  }
+
+  /* SEND BUTTON */
+  .send-wrap {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 14px 18px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+    z-index: 200;
+  }
+  .btn-send {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: #25D366;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(37,211,102,0.3);
+  }
+  .btn-send:active { transform: scale(0.98); }
+  .btn-send.ready {
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+  @keyframes pulse-green {
+    0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.3); }
+    50%       { box-shadow: 0 4px 32px rgba(37,211,102,0.6); }
+  }
+  .btn-send svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  /* PREVIEW MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 500;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 18px 18px 0 0;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px 18px 36px;
+    border-top: 1px solid var(--border);
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0 auto 18px;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+  .preview-text {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'Inter', monospace;
+    border: 1px solid var(--border);
+  }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-cancel {
+    flex: 1; padding: 13px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-confirm {
+    flex: 2; padding: 13px;
+    border-radius: 12px;
+    border: none;
+    background: #25D366;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">OT</div>
+    <div>
+      <div class="header-title">Rapport d'Ouverture</div>
+      <div class="header-sub">OTSY Group</div>
+    </div>
+  </div>
+  <div class="clock" id="clock">--:--</div>
+</div>
+
+<!-- SITE -->
+<div class="site-selector">
+  <button class="site-btn active" onclick="selectSite('HYDRA', this)">🏠 Hydra</button>
+  <button class="site-btn" onclick="selectSite('DRARIA', this)">📍 Draria</button>
+</div>
+
+<!-- DATE -->
+<div class="date-row">
+  <input type="date" id="dateInput">
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">Remplissez le rapport…</div>
+</div>
+
+<!-- 1. EFFECTIF -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon icon-orange">👥</div>
+    <div class="section-title">Effectif</div>
+  </div>
+  <div class="section-body">
+    <div class="effectif-grid">
+      <div class="field">
+        <label>Présents</label>
+        <input type="number" id="presents" min="0" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateProgress()">
+      </div>
+      <div class="field">
+        <label>Capacité totale</label>
+        <input type="number" id="total" min="0" placeholder="0" inputmode="numeric" pattern="[0-9]*" oninput="updateProgress()">
+      </div>
+    </div>
+    <div class="field">
+      <label>Absents</label>
+      <div class="absent-list" id="absentList"></div>
+      <button class="btn-add" onclick="addAbsent()">＋ Ajouter un absent</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. FONDS DE CAISSE -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon icon-green">💵</div>
+    <div class="section-title">Fonds de caisse</div>
+  </div>
+  <div class="section-body">
+    <div class="field">
+      <label>Montant (DA)</label>
+      <input type="number" id="fonds" min="0" placeholder="ex : 5000" inputmode="numeric" pattern="[0-9]*" oninput="updateFondsBadge(); updateProgress()">
+      <div class="fond-badge" id="fondsBadge" style="display:none"></div>
+    </div>
+    <div class="field">
+      <label>Remarque caisse</label>
+      <input type="text" id="fondsNote" placeholder="Optionnel…" oninput="updateProgress()">
+    </div>
+  </div>
+</div>
+
+<!-- 3. PRODUITS NON DISPOS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon icon-yellow">🍔</div>
+    <div class="section-title">Produits non disponibles</div>
+  </div>
+  <div class="section-body">
+    <div class="dispo-list" id="produitsDispoList"></div>
+    <button class="btn-add" onclick="addDispo('produits')">＋ Ajouter un produit</button>
+  </div>
+</div>
+
+<!-- 4. BOISSONS NON DISPOS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon icon-blue">🥤</div>
+    <div class="section-title">Boissons non disponibles</div>
+  </div>
+  <div class="section-body">
+    <div class="dispo-list" id="boissonsDispoList"></div>
+    <button class="btn-add" onclick="addDispo('boissons')">＋ Ajouter une boisson</button>
+  </div>
+</div>
+
+<!-- 5. MATERIEL EN PANNE -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon icon-red">🔧</div>
+    <div class="section-title">Matériel en panne</div>
+  </div>
+  <div class="section-body">
+    <div class="dispo-list" id="panneList"></div>
+    <button class="btn-add" onclick="addPanne()">＋ Ajouter un équipement</button>
+  </div>
+</div>
+
+<!-- 6. REMARQUES -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon icon-teal">⚠️</div>
+    <div class="section-title">Remarque particulière</div>
+  </div>
+  <div class="section-body">
+    <div class="field">
+      <label>Catégorie(s) concernée(s)</label>
+      <div class="chip-grid" id="chipGrid">
+        <button class="chip" onclick="toggleChip(this)">Personnel</button>
+        <button class="chip" onclick="toggleChip(this)">Stock</button>
+        <button class="chip" onclick="toggleChip(this)">Matériel</button>
+        <button class="chip" onclick="toggleChip(this)">Livraison</button>
+        <button class="chip" onclick="toggleChip(this)">Activité prévue</button>
+        <button class="chip" onclick="toggleChip(this)">Hygiène / Sécurité</button>
+        <button class="chip" onclick="toggleChip(this)">Clientèle</button>
+        <button class="chip" onclick="toggleChip(this)">RAS</button>
+      </div>
+    </div>
+    <div class="field remarque-textarea">
+      <label>Qu'est-ce qui pourrait empêcher le restaurant de fonctionner normalement aujourd'hui ?</label>
+      <textarea id="remarque" rows="4" placeholder="Décrivez toute situation anormale…" oninput="updateProgress()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- SEND BUTTON -->
+<div class="send-wrap">
+  <button class="btn-send" id="sendBtn" onclick="previewRapport()">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.089 1.508 5.812L0 24l6.336-1.482A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.669-.5-5.208-1.374l-.374-.222-3.876.906.945-3.773-.243-.387A9.943 9.943 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+    Envoyer sur WhatsApp
+  </button>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Aperçu du rapport</div>
+    <div class="preview-text" id="previewText"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-confirm" onclick="sendWhatsApp()">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.108.549 4.089 1.508 5.812L0 24l6.336-1.482A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.669-.5-5.208-1.374l-.374-.222-3.876.906.945-3.773-.243-.387A9.943 9.943 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Envoyer
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────
+let currentSite = 'HYDRA';
+// Numéros WhatsApp par site (à modifier)
+const WA_NUMBERS = {
+  HYDRA:  '213XXXXXXXXX',  // ← remplace par le vrai numéro
+  DRARIA: '213XXXXXXXXX'   // ← remplace par le vrai numéro
+};
+
+// ─── CLOCK ────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${h}:${m}`;
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ─── DATE ─────────────────────────────────────────────────
+const di = document.getElementById('dateInput');
+const today = new Date();
+di.value = today.toISOString().split('T')[0];
+
+function formatDate(str) {
+  const [y,m,d] = str.split('-');
+  const names = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const dt = new Date(y, m-1, d);
+  return `${names[dt.getDay()]} ${d} ${mois[m-1]} ${y}`;
+}
+
+// ─── SITE ─────────────────────────────────────────────────
+function selectSite(site, el) {
+  currentSite = site;
+  document.querySelectorAll('.site-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ─── ABSENTS ──────────────────────────────────────────────
+function addAbsent() {
+  const list = document.getElementById('absentList');
+  const div = document.createElement('div');
+  div.className = 'absent-item';
+  div.innerHTML = `<input type="text" placeholder="Nom de l'employé absent…" oninput="updateProgress()"><button class="btn-remove" onclick="this.parentElement.remove(); updateProgress()">✕</button>`;
+  list.appendChild(div);
+}
+
+// ─── DISPO ────────────────────────────────────────────────
+function addDispo(type) {
+  const list = document.getElementById(type + 'DispoList');
+  const div = document.createElement('div');
+  div.className = 'dispo-item';
+  div.innerHTML = `
+    <div class="dispo-row">
+      <input type="text" placeholder="${type === 'produits' ? 'Nom du produit…' : 'Nom de la boisson…'}" oninput="updateProgress()">
+      <button class="btn-remove" onclick="this.closest('.dispo-item').remove(); updateProgress()">✕</button>
+    </div>
+    <div class="dispo-row">
+      <span style="font-size:11px;color:var(--label);font-weight:600;white-space:nowrap">Disponible à</span>
+      <input type="time" value="13:00" oninput="updateProgress()">
+    </div>`;
+  list.appendChild(div);
+  updateProgress();
+}
+
+// ─── PANNES ───────────────────────────────────────────────
+function addPanne() {
+  const list = document.getElementById('panneList');
+  const div = document.createElement('div');
+  div.className = 'dispo-item';
+  div.innerHTML = `
+    <div class="dispo-row">
+      <input type="text" placeholder="Équipement en panne…" oninput="updateProgress()">
+      <button class="btn-remove" onclick="this.closest('.dispo-item').remove(); updateProgress()">✕</button>
+    </div>
+    <div class="field" style="padding:0">
+      <input type="text" placeholder="Description de la panne (optionnel)…" oninput="updateProgress()">
+    </div>`;
+  list.appendChild(div);
+  updateProgress();
+}
+
+// ─── FONDS BADGE ──────────────────────────────────────────
+function updateFondsBadge() {
+  const v = document.getElementById('fonds').value;
+  const badge = document.getElementById('fondsBadge');
+  if (v && parseInt(v) > 0) {
+    badge.textContent = `✓ ${parseInt(v).toLocaleString('fr-DZ')} DA`;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ─── CHIPS ────────────────────────────────────────────────
+function toggleChip(el) {
+  el.classList.toggle('selected');
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────
+function updateProgress() {
+  let filled = 0, total = 4;
+  if (document.getElementById('presents').value) filled++;
+  if (document.getElementById('fonds').value) filled++;
+  if (document.getElementById('remarque').value.trim().length > 3) filled++;
+  // au moins un champ rempli globalement
+  const allInputs = document.querySelectorAll('input[type="text"], input[type="number"], textarea');
+  let anyExtra = false;
+  allInputs.forEach(i => { if (i.value.trim()) anyExtra = true; });
+  if (anyExtra) filled = Math.max(filled, 1);
+  const pct = Math.min(100, Math.round((filled / total) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  const labels = ['Remplissez le rapport…','En cours…','Presque prêt…','Prêt à envoyer ✓'];
+  document.getElementById('progressLabel').textContent = labels[Math.min(3, filled)];
+  const btn = document.getElementById('sendBtn');
+  if (pct >= 75) btn.classList.add('ready'); else btn.classList.remove('ready');
+}
+
+// ─── GENERATE MESSAGE ─────────────────────────────────────
+function generateMessage() {
+  const site = currentSite === 'HYDRA' ? 'OTSY Hydra' : 'OTSY Draria';
+  const dateStr = formatDate(document.getElementById('dateInput').value);
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+
+  let msg = `🏪 *RAPPORT D'OUVERTURE — ${site.toUpperCase()}*\n`;
+  msg += `📅 ${dateStr}\n`;
+  msg += `🕐 Envoyé à ${hh}h${mm}\n`;
+  msg += `${'─'.repeat(30)}\n\n`;
+
+  // Effectif
+  const presents = document.getElementById('presents').value;
+  const total = document.getElementById('total').value;
+  msg += `👥 *EFFECTIF*\n`;
+  msg += presents ? `• Présents : ${presents}${total ? ' / ' + total : ''}\n` : `• Présents : —\n`;
+
+  const absentItems = document.querySelectorAll('#absentList .absent-item input');
+  const absents = [...absentItems].map(i => i.value.trim()).filter(Boolean);
+  if (absents.length) {
+    msg += `• Absents : ${absents.join(', ')}\n`;
+  } else {
+    msg += `• Absents : Aucun\n`;
+  }
+
+  msg += `\n`;
+
+  // Fonds
+  const fonds = document.getElementById('fonds').value;
+  const fondsNote = document.getElementById('fondsNote').value.trim();
+  msg += `💵 *FONDS DE CAISSE*\n`;
+  msg += fonds ? `• Montant : ${parseInt(fonds).toLocaleString('fr-DZ')} DA\n` : `• Montant : non renseigné\n`;
+  if (fondsNote) msg += `• Note : ${fondsNote}\n`;
+  msg += `\n`;
+
+  // Produits
+  const produitsItems = document.querySelectorAll('#produitsDispoList .dispo-item');
+  msg += `🍔 *PRODUITS NON DISPONIBLES*\n`;
+  if (produitsItems.length === 0) {
+    msg += `• Aucun\n`;
+  } else {
+    produitsItems.forEach(item => {
+      const inputs = item.querySelectorAll('input');
+      const nom = inputs[0]?.value.trim();
+      const heure = inputs[1]?.value;
+      if (nom) msg += `• ${nom}${heure ? ` → disponible à ${heure}` : ''}\n`;
+    });
+  }
+  msg += `\n`;
+
+  // Boissons
+  const boissonsItems = document.querySelectorAll('#boissonsDispoList .dispo-item');
+  msg += `🥤 *BOISSONS NON DISPONIBLES*\n`;
+  if (boissonsItems.length === 0) {
+    msg += `• Aucune\n`;
+  } else {
+    boissonsItems.forEach(item => {
+      const inputs = item.querySelectorAll('input');
+      const nom = inputs[0]?.value.trim();
+      const heure = inputs[1]?.value;
+      if (nom) msg += `• ${nom}${heure ? ` → disponible à ${heure}` : ''}\n`;
+    });
+  }
+  msg += `\n`;
+
+  // Pannes
+  const panneItems = document.querySelectorAll('#panneList .dispo-item');
+  msg += `🔧 *MATÉRIEL EN PANNE*\n`;
+  if (panneItems.length === 0) {
+    msg += `• Aucun\n`;
+  } else {
+    panneItems.forEach(item => {
+      const inputs = item.querySelectorAll('input');
+      const nom = inputs[0]?.value.trim();
+      const desc = inputs[1]?.value.trim();
+      if (nom) msg += `• ${nom}${desc ? ` — ${desc}` : ''}\n`;
+    });
+  }
+  msg += `\n`;
+
+  // Remarques
+  const chips = [...document.querySelectorAll('.chip.selected')].map(c => c.textContent).join(', ');
+  const remarque = document.getElementById('remarque').value.trim();
+  msg += `⚠️ *REMARQUE PARTICULIÈRE*\n`;
+  if (chips) msg += `• Catégorie(s) : ${chips}\n`;
+  msg += remarque ? `• ${remarque}\n` : `• Aucune remarque particulière.\n`;
+
+  msg += `\n${'─'.repeat(30)}\n`;
+  msg += `✅ Rapport validé — Service du jour lancé.`;
+
+  return msg;
+}
+
+// ─── MODAL ────────────────────────────────────────────────
+function previewRapport() {
+  const msg = generateMessage();
+  document.getElementById('previewText').textContent = msg;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function sendWhatsApp() {
+  const msg = generateMessage();
+  const num = WA_NUMBERS[currentSite];
+  const url = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+  window.location.href = url; // Safari iOS bloque window.open si pas déclenché directement
+  closeModal();
+}
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
